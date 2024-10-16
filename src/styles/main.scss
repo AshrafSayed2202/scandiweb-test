@@ -4,3 +4,26 @@ body {
     margin: 0;
     padding: 0;
 }
+.product-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.product {
+    border: 1px solid #ccc;
+    padding: 10px;
+    background-color: white;
+}
+
+.delete-checkbox {
+    margin-right: 10px;
+}
+
+button {
+    padding: 10px 15px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
