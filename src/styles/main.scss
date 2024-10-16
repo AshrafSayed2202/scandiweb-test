@@ -27,3 +27,30 @@ button {
     border: none;
     cursor: pointer;
 }
+form {
+    display: flex;
+    flex-direction: column;
+    width: 300px;
+    margin: auto;
+}
+
+label {
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+input,
+select {
+    padding: 5px;
+    margin-top: 5px;
+}
+
+button {
+    margin-top: 20px;
+    padding: 10px;
+}
+
+button + button {
+    margin-left: 10px;
+    background-color: #dc3545;
+}
