@@ -1,32 +1,35 @@
-import React from 'react';
-
-const products = [
-    { sku: 'DVD001', name: 'DVD - Inception', price: 12.99, size: 700, type: 'DVD' },
-    { sku: 'BK001', name: 'Book - Harry Potter', price: 9.99, weight: 1.2, type: 'Book' },
-    { sku: 'FUR001', name: 'Chair', price: 49.99, dimensions: { height: 120, width: 60, length: 60 }, type: 'Furniture' },
-];
+import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 
 const ProductList = () => {
+    const [products, setProducts] = useState([]);
+
+    useEffect(() => {
+        // Fetch products from local storage
+        const storedProducts = JSON.parse(localStorage.getItem('products')) || [];
+        setProducts(storedProducts);
+    }, []);
+
     return (
         <div>
             <h1>Product List</h1>
-            <button onClick={() => window.location.href = '/add-product'}>ADD</button>
-            <div className="product-list">
-                {products.map(product => (
-                    <div key={product.sku} className="product">
+            <Link to="/add-product">
+                <button>Add Product</button>
+            </Link>
+            <button>MASS DELETE</button>
+            <div>
+                {products.map((product, index) => (
+                    <div key={index}>
                         <input type="checkbox" className="delete-checkbox" />
-                        <p>SKU: {product.sku}</p>
-                        <p>Name: {product.name}</p>
-                        <p>Price: ${product.price}</p>
-                        {product.type === 'DVD' && <p>Size: {product.size} MB</p>}
-                        {product.type === 'Book' && <p>Weight: {product.weight} Kg</p>}
-                        {product.type === 'Furniture' && (
-                            <p>Dimensions: {product.dimensions.height}x{product.dimensions.width}x{product.dimensions.length}</p>
+                        <p>{product.sku} - {product.name} - ${product.price}</p>
+                        {product.productType === 'DVD' && <p>Size: {product.size} MB</p>}
+                        {product.productType === 'Book' && <p>Weight: {product.weight} Kg</p>}
+                        {product.productType === 'Furniture' && (
+                            <p>Dimensions: {product.dimensions.height}x{product.dimensions.width}x{product.dimensions.length} CM</p>
                         )}
                     </div>
                 ))}
             </div>
-            <button>MASS DELETE</button>
         </div>
     );
 };

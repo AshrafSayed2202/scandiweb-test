@@ -16,7 +16,6 @@ const AddProduct = () => {
         setProductType(e.target.value);
         setErrorMessage('');
     };
-
     const handleSave = (e) => {
         e.preventDefault();
 
@@ -40,9 +39,13 @@ const AddProduct = () => {
             return;
         }
 
-        // If validation passes, save the product (this is where we will add save logic)
+        // Product object
         const newProduct = { sku, name, price, productType, size, weight, dimensions };
-        console.log('Product saved:', newProduct); // Replace this with actual saving logic
+
+        // Save to local storage
+        const existingProducts = JSON.parse(localStorage.getItem('products')) || [];
+        existingProducts.push(newProduct);
+        localStorage.setItem('products', JSON.stringify(existingProducts));
 
         navigate('/');
     };
