@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 
 const ProductList = () => {
     const [products, setProducts] = useState([]);
+    const [selectedProducts, setSelectedProducts] = useState([]); // Track selected products
 
     useEffect(() => {
         // Fetch products from local storage
@@ -10,17 +11,39 @@ const ProductList = () => {
         setProducts(storedProducts);
     }, []);
 
+    const handleCheckboxChange = (sku) => {
+        // Toggle the selection of a product
+        if (selectedProducts.includes(sku)) {
+            setSelectedProducts(selectedProducts.filter((item) => item !== sku));
+        } else {
+            setSelectedProducts([...selectedProducts, sku]);
+        }
+    };
+
+    const handleMassDelete = () => {
+        // Remove selected products from the product list
+        const updatedProducts = products.filter((product) => !selectedProducts.includes(product.sku));
+        setProducts(updatedProducts);
+        localStorage.setItem('products', JSON.stringify(updatedProducts));
+        setSelectedProducts([]); // Clear the selected products after deletion
+    };
+
     return (
         <div>
             <h1>Product List</h1>
             <Link to="/add-product">
                 <button>Add Product</button>
             </Link>
-            <button>MASS DELETE</button>
+            <button onClick={handleMassDelete}>MASS DELETE</button>
             <div>
                 {products.map((product, index) => (
                     <div key={index}>
-                        <input type="checkbox" className="delete-checkbox" />
+                        <input
+                            type="checkbox"
+                            className="delete-checkbox"
+                            checked={selectedProducts.includes(product.sku)}
+                            onChange={() => handleCheckboxChange(product.sku)}
+                        />
                         <p>{product.sku} - {product.name} - ${product.price}</p>
                         {product.productType === 'DVD' && <p>Size: {product.size} MB</p>}
                         {product.productType === 'Book' && <p>Weight: {product.weight} Kg</p>}
