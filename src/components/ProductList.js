@@ -1,14 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { fetchProducts } from '../services/productService';
 
 const ProductList = () => {
     const [products, setProducts] = useState([]);
     const [selectedProducts, setSelectedProducts] = useState([]); // Track selected products
 
     useEffect(() => {
-        // Fetch products from local storage
-        const storedProducts = JSON.parse(localStorage.getItem('products')) || [];
-        setProducts(storedProducts);
+        // Fetch products when the component mounts
+        const getProducts = async () => {
+            try {
+                const data = await fetchProducts();
+                setProducts(data);
+            } catch (error) {
+                console.error("Error loading products", error);
+            }
+        };
+        getProducts();
     }, []);
 
     const handleCheckboxChange = (sku) => {
