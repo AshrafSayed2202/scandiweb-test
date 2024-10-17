@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const AddProduct = () => {
     const [productType, setProductType] = useState('');
@@ -39,15 +40,30 @@ const AddProduct = () => {
             return;
         }
 
-        // Product object
-        const newProduct = { sku, name, price, productType, size, weight, dimensions };
+        // Product object to send to backend
+        const newProduct = {
+            sku,
+            name,
+            price,
+            product_type: productType,
+            size: productType === 'DVD' ? size : null,
+            weight: productType === 'Book' ? weight : null,
+            height: productType === 'Furniture' ? dimensions.height : null,
+            width: productType === 'Furniture' ? dimensions.width : null,
+            length: productType === 'Furniture' ? dimensions.length : null
+        };
 
-        // Save to local storage
-        const existingProducts = JSON.parse(localStorage.getItem('products')) || [];
-        existingProducts.push(newProduct);
-        localStorage.setItem('products', JSON.stringify(existingProducts));
-
-        navigate('/');
+        // Send the data to the backend API
+        axios.post('http://localhost/product-api/addProduct.php', newProduct)
+            .then(response => {
+                if (response.data.success) {
+                    // Redirect to products list after successful save
+                    navigate('/');
+                }
+            })
+            .catch(error => {
+                console.error('Error saving the product:', error);
+            });
     };
 
     const handleCancel = () => {
