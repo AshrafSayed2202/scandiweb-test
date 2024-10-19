@@ -34,11 +34,10 @@ const ProductsList = () => {
 
     const handleMassDelete = async () => {
         try {
-            await Promise.all(
-                Array.from(selectedProducts).map(sku =>
-                    axios.post('http://scandiweb-test.wuaze.com/product-api/deleteProducts.php', { sku })
-                )
-            );
+            // Convert selectedProducts Set into an array
+            const skusToDelete = Array.from(selectedProducts);
+            // Send all selected SKUs in one API request
+            await axios.post('http://scandiweb-test.wuaze.com/product-api/deleteProducts.php', { skus: skusToDelete });
             // Refresh product list after deletion
             const response = await axios.get('http://scandiweb-test.wuaze.com/product-api/getProducts.php');
             setProducts(response.data);
