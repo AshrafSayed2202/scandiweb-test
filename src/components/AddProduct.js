@@ -54,7 +54,7 @@ const AddProduct = () => {
         };
 
         // Send the data to the backend API
-        axios.post('http://localhost/product-api/addProduct.php', newProduct)
+        axios.post('http://scandiweb-test.wuaze.com/product-api/addProduct.php', newProduct)
             .then(response => {
                 if (response.data.success) {
                     // Redirect to products list after successful save

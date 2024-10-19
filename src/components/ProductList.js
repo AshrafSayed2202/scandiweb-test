@@ -1,68 +1,90 @@
 import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 import { Link } from 'react-router-dom';
-import { fetchProducts } from '../services/productService';
-
-const ProductList = () => {
+const ProductsList = () => {
     const [products, setProducts] = useState([]);
-    const [selectedProducts, setSelectedProducts] = useState([]); // Track selected products
+    const [selectedProducts, setSelectedProducts] = useState(new Set());
 
     useEffect(() => {
-        // Fetch products when the component mounts
-        const getProducts = async () => {
+        // Fetch products from the API
+        const fetchProducts = async () => {
             try {
-                const data = await fetchProducts();
-                setProducts(data);
+                const response = await axios.get('http://scandiweb-test.wuaze.com/product-api/getProducts.php');
+                if (Array.isArray(response.data)) {
+                    setProducts(response.data);
+                } else {
+                    console.error("Expected an array but got:", response.data);
+                }
             } catch (error) {
-                console.error("Error loading products", error);
+                console.error('Error loading products', error);
             }
         };
-        getProducts();
+        fetchProducts();
     }, []);
 
-    const handleCheckboxChange = (sku) => {
-        // Toggle the selection of a product
-        if (selectedProducts.includes(sku)) {
-            setSelectedProducts(selectedProducts.filter((item) => item !== sku));
+    const handleSelectProduct = (sku) => {
+        const newSelectedProducts = new Set(selectedProducts);
+        if (newSelectedProducts.has(sku)) {
+            newSelectedProducts.delete(sku);
         } else {
-            setSelectedProducts([...selectedProducts, sku]);
+            newSelectedProducts.add(sku);
         }
+        setSelectedProducts(newSelectedProducts);
     };
 
-    const handleMassDelete = () => {
-        // Remove selected products from the product list
-        const updatedProducts = products.filter((product) => !selectedProducts.includes(product.sku));
-        setProducts(updatedProducts);
-        localStorage.setItem('products', JSON.stringify(updatedProducts));
-        setSelectedProducts([]); // Clear the selected products after deletion
+    const handleMassDelete = async () => {
+        try {
+            await Promise.all(
+                Array.from(selectedProducts).map(sku =>
+                    axios.post('http://scandiweb-test.wuaze.com/product-api/deleteProducts.php', { sku })
+                )
+            );
+            // Refresh product list after deletion
+            const response = await axios.get('http://scandiweb-test.wuaze.com/product-api/getProducts.php');
+            setProducts(response.data);
+            setSelectedProducts(new Set()); // Clear selection
+        } catch (error) {
+            console.error('Error deleting products', error);
+        }
     };
 
     return (
         <div>
-            <h1>Product List</h1>
+            <h1>Products List</h1>
             <Link to="/add-product">
                 <button>Add Product</button>
             </Link>
-            <button onClick={handleMassDelete}>MASS DELETE</button>
-            <div>
-                {products.map((product, index) => (
-                    <div key={index}>
-                        <input
-                            type="checkbox"
-                            className="delete-checkbox"
-                            checked={selectedProducts.includes(product.sku)}
-                            onChange={() => handleCheckboxChange(product.sku)}
-                        />
-                        <p>{product.sku} - {product.name} - ${product.price}</p>
-                        {product.productType === 'DVD' && <p>Size: {product.size} MB</p>}
-                        {product.productType === 'Book' && <p>Weight: {product.weight} Kg</p>}
-                        {product.productType === 'Furniture' && (
-                            <p>Dimensions: {product.dimensions.height}x{product.dimensions.width}x{product.dimensions.length} CM</p>
-                        )}
-                    </div>
-                ))}
-            </div>
+            <button onClick={handleMassDelete}>Mass Delete</button>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Select</th>
+                        <th>SKU</th>
+                        <th>Name</th>
+                        <th>Price</th>
+                        <th>Type</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {Array.isArray(products) && products.map((product) => (
+                        <tr key={product.sku}>
+                            <td>
+                                <input
+                                    type="checkbox"
+                                    checked={selectedProducts.has(product.sku)}
+                                    onChange={() => handleSelectProduct(product.sku)}
+                                />
+                            </td>
+                            <td>{product.sku}</td>
+                            <td>{product.name}</td>
+                            <td>{product.price}</td>
+                            <td>{product.product_type}</td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
         </div>
     );
 };
 
-export default ProductList;
+export default ProductsList;
