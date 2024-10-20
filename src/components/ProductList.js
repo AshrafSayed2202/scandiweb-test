@@ -93,7 +93,7 @@ const ProductsList = () => {
                                 className='delete-checkbox'
                             />
                             <h3>{product.name}</h3>
-                            <p>SKU: {product.sku}</p>
+                            <p style={{ textTransform: 'uppercase' }}>SKU: {product.sku}</p>
                             <p>Price: {product.price} $</p>
                             <p>Type: {product.product_type}</p>
                             <p>{renderSpecificData(product)}</p>
