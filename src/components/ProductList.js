@@ -5,12 +5,10 @@ import { Link } from 'react-router-dom';
 const ProductsList = () => {
     const [products, setProducts] = useState([]);
     const [selectedProducts, setSelectedProducts] = useState(new Set());
-    const [error, setError] = useState(null);
 
     useEffect(() => {
         // Fetch products from the API
         const fetchProducts = async () => {
-            setError(null); // Reset error state
             try {
                 const response = await axios.get('http://scandiweb-test.wuaze.com/product-api/getProducts.php');
                 let data = response.data;
@@ -25,7 +23,6 @@ const ProductsList = () => {
                     throw new Error(`Expected an array but got: ${JSON.stringify(data)}`);
                 }
             } catch (err) {
-                setError(err.message);
                 console.error('Error loading products', err);
             }
         };
@@ -45,7 +42,6 @@ const ProductsList = () => {
 
     const handleMassDelete = async () => {
         try {
-            console.log("Selected SKUs: ", selectedProducts); // Log selected SKUs
             await Promise.all(
                 Array.from(selectedProducts).map(sku =>
                     axios.post('http://scandiweb-test.wuaze.com/product-api/deleteProducts.php', { sku })
@@ -60,6 +56,16 @@ const ProductsList = () => {
         }
     };
 
+    const renderSpecificData = (product) => {
+        if (product.product_type === 'DVD') {
+            return `Size: ${product.size} MB`;
+        } else if (product.product_type === 'Book') {
+            return `Weight: ${product.weight} Kg`;
+        } else if (product.product_type === 'Furniture') {
+            return `Dimensions: ${product.height} x ${product.width} x ${product.length}`;
+        }
+        return null;
+    };
 
     return (
         <div>
@@ -70,37 +76,23 @@ const ProductsList = () => {
             <button onClick={handleMassDelete} disabled={selectedProducts.size === 0}>
                 Mass Delete
             </button>
-            {error && <p style={{ color: 'red' }}>Error: {error}</p>}
             {products.length > 0 ? (
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Select</th>
-                            <th>SKU</th>
-                            <th>Name</th>
-                            <th>Price</th>
-                            <th>Type</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {products.map((product) => (
-                            <tr key={product.sku}>
-                                <td>
-                                    <input
-                                        type="checkbox"
-                                        checked={selectedProducts.has(product.sku)}
-                                        onChange={() => handleSelectProduct(product.sku)}
-                                    />
-                                </td>
-                                <td>{product.sku}</td>
-                                <td>{product.name}</td>
-                                <td>{product.price}</td>
-                                <td>{product.product_type}</td>
-                            </tr>
-                        )
-                        )}
-                    </tbody>
-                </table>
+                <div className="product-cards">
+                    {products.map((product) => (
+                        <div className="product-card" key={product.sku}>
+                            <input
+                                type="checkbox"
+                                checked={selectedProducts.has(product.sku)}
+                                onChange={() => handleSelectProduct(product.sku)}
+                            />
+                            <h3>{product.name}</h3>
+                            <p>SKU: {product.sku}</p>
+                            <p>Price: {product.price}</p>
+                            <p>Type: {product.product_type}</p>
+                            <p>{renderSpecificData(product)}</p>
+                        </div>
+                    ))}
+                </div>
             ) : (
                 <p>No products available.</p>
             )}

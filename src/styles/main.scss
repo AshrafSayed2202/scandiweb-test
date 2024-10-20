@@ -54,3 +54,44 @@ button + button {
     margin-left: 10px;
     background-color: #dc3545;
 }
+
+.product-cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px; /* Space between cards */
+}
+
+.product-card {
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    width: calc(33.333% - 20px); /* Default: Three cards per row */
+    box-sizing: border-box;
+    transition: box-shadow 0.2s;
+}
+
+.product-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.product-card h3 {
+    margin: 0 0 8px;
+}
+
+.product-card p {
+    margin: 4px 0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+    .product-card {
+        width: calc(50% - 20px); /* Two cards per row on medium screens */
+    }
+}
+
+@media (max-width: 800px) {
+    .product-card {
+        width: calc(100% - 20px); /* One card per row on small screens */
+    }
+}
