@@ -72,7 +72,9 @@ const AddProduct = () => {
 
     return (
         <div>
-            <h1>Add Product</h1>
+            <div className='header'>
+                <h1>Add Product</h1>
+            </div>
             {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
             <form id="product_form" onSubmit={handleSave}>
                 <label>SKU:</label>
@@ -93,19 +95,19 @@ const AddProduct = () => {
                 </select>
 
                 {productType === 'DVD' && (
-                    <div>
+                    <div className='specific-data'>
                         <label>Size (MB):</label>
                         <input id="size" type="number" value={size} onChange={(e) => setSize(e.target.value)} required />
                     </div>
                 )}
                 {productType === 'Book' && (
-                    <div>
+                    <div className='specific-data'>
                         <label>Weight (Kg):</label>
                         <input id="weight" type="number" value={weight} onChange={(e) => setWeight(e.target.value)} required />
                     </div>
                 )}
                 {productType === 'Furniture' && (
-                    <div>
+                    <div className='specific-data'>
                         <label>Height (CM):</label>
                         <input id="height" type="number" value={dimensions.height} onChange={(e) => setDimensions({ ...dimensions, height: e.target.value })} required />
                         <label>Width (CM):</label>

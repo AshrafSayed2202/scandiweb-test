@@ -1,7 +1,7 @@
 body {
     font-family: Arial, sans-serif;
     background-color: #f4f4f4;
-    margin: 0;
+    margin: 0 25px;
     padding: 0;
 }
 .product-list {
@@ -9,7 +9,23 @@ body {
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     gap: 20px;
 }
-
+div.header > div {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+div.header::after {
+    content: "";
+    display: block;
+    width: 100%;
+    height: 2px;
+    background-color: #111;
+    margin-top: 15px;
+}
+div.btns {
+    display: flex;
+    gap: 10px;
+}
 .product {
     border: 1px solid #ccc;
     padding: 10px;
@@ -30,7 +46,7 @@ button {
 form {
     display: flex;
     flex-direction: column;
-    width: 300px;
+    width: 350px;
     margin: auto;
 }
 
@@ -44,14 +60,16 @@ select {
     padding: 5px;
     margin-top: 5px;
 }
-
+div.specific-data {
+    display: flex;
+    flex-direction: column;
+}
 button {
     margin-top: 20px;
     padding: 10px;
 }
 
 button + button {
-    margin-left: 10px;
     background-color: #dc3545;
 }
 

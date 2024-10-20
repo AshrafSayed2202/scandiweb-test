@@ -62,20 +62,26 @@ const ProductsList = () => {
         } else if (product.product_type === 'Book') {
             return `Weight: ${product.weight} Kg`;
         } else if (product.product_type === 'Furniture') {
-            return `Dimensions: ${product.height} x ${product.width} x ${product.length}`;
+            return `Dimensions: ${product.height}x${product.width}x${product.length}`;
         }
         return null;
     };
 
     return (
         <div>
-            <h1>Products List</h1>
-            <Link to="/add-product">
-                <button>Add Product</button>
-            </Link>
-            <button onClick={handleMassDelete} disabled={selectedProducts.size === 0}>
-                Mass Delete
-            </button>
+            <div className='header'>
+                <div>
+                    <h1>Products List</h1>
+                    <div className='btns'>
+                        <Link to="/add-product">
+                            <button>ADD</button>
+                        </Link>
+                        <button onClick={handleMassDelete} disabled={selectedProducts.size === 0}>
+                            MASS DELETE
+                        </button>
+                    </div>
+                </div>
+            </div>
             {products.length > 0 ? (
                 <div className="product-cards">
                     {products.map((product) => (
@@ -87,7 +93,7 @@ const ProductsList = () => {
                             />
                             <h3>{product.name}</h3>
                             <p>SKU: {product.sku}</p>
-                            <p>Price: {product.price}</p>
+                            <p>Price: {product.price} $</p>
                             <p>Type: {product.product_type}</p>
                             <p>{renderSpecificData(product)}</p>
                         </div>
