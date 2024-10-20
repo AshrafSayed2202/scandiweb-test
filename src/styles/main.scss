@@ -33,7 +33,9 @@ div.btns {
 }
 
 .delete-checkbox {
-    margin-right: 10px;
+    position: absolute;
+    left: 5px;
+    top: 5px;
 }
 
 button {
@@ -87,6 +89,8 @@ button + button {
     width: calc(33.333% - 20px); /* Default: Three cards per row */
     box-sizing: border-box;
     transition: box-shadow 0.2s;
+    position: relative;
+    text-align: center;
 }
 
 .product-card:hover {

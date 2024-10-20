@@ -90,6 +90,7 @@ const ProductsList = () => {
                                 type="checkbox"
                                 checked={selectedProducts.has(product.sku)}
                                 onChange={() => handleSelectProduct(product.sku)}
+                                className='delete-checkbox'
                             />
                             <h3>{product.name}</h3>
                             <p>SKU: {product.sku}</p>
