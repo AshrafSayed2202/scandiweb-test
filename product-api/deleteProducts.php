@@ -1,35 +1,58 @@
 <?php
-include 'config.php'; // Include database connection
+// Enable error reporting
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: POST");
-header("Content-Type: application/json");
+// Log file for debugging
+$logFile = 'delete_log.txt';
 
-$data = json_decode(file_get_contents("php://input"), true);
+// Get the raw POST data and decode it
+$data = json_decode(file_get_contents('php://input'), true);
 
-// Check if 'skus' is an array in the request payload
-if (isset($data['skus']) && is_array($data['skus'])) {
-    $skus = $data['skus'];
+if (isset($data['sku'])) {
+    $sku = $data['sku'];
+    file_put_contents($logFile, "Received SKU: $sku\n", FILE_APPEND);
 
-    // Prepare SQL statement to delete multiple SKUs
-    $placeholders = implode(',', array_fill(0, count($skus), '?'));
-    $sql = "DELETE FROM products WHERE sku IN ($placeholders)";
-    
-    $stmt = $conn->prepare($sql);
-    
-    // Bind the SKU values dynamically
-    $stmt->bind_param(str_repeat('s', count($skus)), ...$skus);
+    // Database connection
+    $servername = "sql310.infinityfree.com";
+    $username = "if0_37538183";
+    $password = "xv56p97n";
+    $dbname = "if0_37538183_products_db";
 
-    if ($stmt->execute()) {
-        echo json_encode(['message' => 'Products deleted successfully']);
-    } else {
-        echo json_encode(['message' => 'Error deleting products']);
+    // Create connection
+    $conn = new mysqli($servername, $username, $password, $dbname);
+
+    // Check connection
+    if ($conn->connect_error) {
+        file_put_contents($logFile, "Connection failed: " . $conn->connect_error . "\n", FILE_APPEND);
+        die("Connection failed: " . $conn->connect_error);
     }
-    
-    $stmt->close();
-} else {
-    echo json_encode(['message' => 'No valid SKUs provided']);
-}
 
-$conn->close();
+    // Prepare the SQL delete statement
+    $stmt = $conn->prepare("DELETE FROM products WHERE sku = ?");
+    if ($stmt === false) {
+        file_put_contents($logFile, "Prepare failed: " . $conn->error . "\n", FILE_APPEND);
+        die("Prepare failed: " . $conn->error);
+    }
+
+    // Bind the parameter
+    $stmt->bind_param("s", $sku);
+
+    // Execute the statement
+    if ($stmt->execute()) {
+        file_put_contents($logFile, "Successfully deleted SKU: $sku\n", FILE_APPEND);
+        echo json_encode(['success' => true, 'message' => 'Product deleted successfully']);
+    } else {
+        file_put_contents($logFile, "Error deleting product: " . $stmt->error . "\n", FILE_APPEND);
+        echo json_encode(['success' => false, 'message' => 'Error deleting product']);
+    }
+
+    // Close the statement and connection
+    $stmt->close();
+    $conn->close();
+} else {
+    file_put_contents($logFile, "SKU not set in request\n", FILE_APPEND);
+    echo json_encode(['success' => false, 'message' => 'SKU not provided']);
+}
 ?>

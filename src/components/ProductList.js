@@ -1,24 +1,35 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
+
 const ProductsList = () => {
     const [products, setProducts] = useState([]);
     const [selectedProducts, setSelectedProducts] = useState(new Set());
+    const [error, setError] = useState(null);
 
     useEffect(() => {
         // Fetch products from the API
         const fetchProducts = async () => {
+            setError(null); // Reset error state
             try {
                 const response = await axios.get('http://scandiweb-test.wuaze.com/product-api/getProducts.php');
-                if (Array.isArray(response.data)) {
-                    setProducts(response.data);
+                let data = response.data;
+                if (typeof data === 'string') {
+                    // Handle the concatenated JSON arrays
+                    const jsonStrings = data.split('][').map(item => item.replace(/^\[|\]$/g, ''));
+                    const parsedProducts = jsonStrings.flatMap(jsonString => JSON.parse(`[${jsonString}]`));
+                    setProducts(parsedProducts);
+                } else if (Array.isArray(data)) {
+                    setProducts(data);
                 } else {
-                    console.error("Expected an array but got:", response.data);
+                    throw new Error(`Expected an array but got: ${JSON.stringify(data)}`);
                 }
-            } catch (error) {
-                console.error('Error loading products', error);
+            } catch (err) {
+                setError(err.message);
+                console.error('Error loading products', err);
             }
         };
+
         fetchProducts();
     }, []);
 
@@ -34,10 +45,12 @@ const ProductsList = () => {
 
     const handleMassDelete = async () => {
         try {
-            // Convert selectedProducts Set into an array
-            const skusToDelete = Array.from(selectedProducts);
-            // Send all selected SKUs in one API request
-            await axios.post('http://scandiweb-test.wuaze.com/product-api/deleteProducts.php', { skus: skusToDelete });
+            console.log("Selected SKUs: ", selectedProducts); // Log selected SKUs
+            await Promise.all(
+                Array.from(selectedProducts).map(sku =>
+                    axios.post('http://scandiweb-test.wuaze.com/product-api/deleteProducts.php', { sku })
+                )
+            );
             // Refresh product list after deletion
             const response = await axios.get('http://scandiweb-test.wuaze.com/product-api/getProducts.php');
             setProducts(response.data);
@@ -47,41 +60,50 @@ const ProductsList = () => {
         }
     };
 
+
     return (
         <div>
             <h1>Products List</h1>
             <Link to="/add-product">
                 <button>Add Product</button>
             </Link>
-            <button onClick={handleMassDelete}>Mass Delete</button>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Select</th>
-                        <th>SKU</th>
-                        <th>Name</th>
-                        <th>Price</th>
-                        <th>Type</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {Array.isArray(products) && products.map((product) => (
-                        <tr key={product.sku}>
-                            <td>
-                                <input
-                                    type="checkbox"
-                                    checked={selectedProducts.has(product.sku)}
-                                    onChange={() => handleSelectProduct(product.sku)}
-                                />
-                            </td>
-                            <td>{product.sku}</td>
-                            <td>{product.name}</td>
-                            <td>{product.price}</td>
-                            <td>{product.product_type}</td>
+            <button onClick={handleMassDelete} disabled={selectedProducts.size === 0}>
+                Mass Delete
+            </button>
+            {error && <p style={{ color: 'red' }}>Error: {error}</p>}
+            {products.length > 0 ? (
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Select</th>
+                            <th>SKU</th>
+                            <th>Name</th>
+                            <th>Price</th>
+                            <th>Type</th>
                         </tr>
-                    ))}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {products.map((product) => (
+                            <tr key={product.sku}>
+                                <td>
+                                    <input
+                                        type="checkbox"
+                                        checked={selectedProducts.has(product.sku)}
+                                        onChange={() => handleSelectProduct(product.sku)}
+                                    />
+                                </td>
+                                <td>{product.sku}</td>
+                                <td>{product.name}</td>
+                                <td>{product.price}</td>
+                                <td>{product.product_type}</td>
+                            </tr>
+                        )
+                        )}
+                    </tbody>
+                </table>
+            ) : (
+                <p>No products available.</p>
+            )}
         </div>
     );
 };

@@ -3,7 +3,8 @@ header('Access-Control-Allow-Origin: *');
 header('Content-Type: application/json');
 include 'config.php';
 
-$query = 'SELECT * FROM products';
+// Modify the query to select distinct SKUs
+$query = 'SELECT DISTINCT * FROM products';
 $stmt = $db->prepare($query);
 $stmt->execute();
 $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
