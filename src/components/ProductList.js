@@ -71,7 +71,7 @@ const ProductsList = () => {
         <div>
             <div className='header'>
                 <div>
-                    <h1>Products List</h1>
+                    <h1>Product List</h1>
                     <div className='btns'>
                         <Link to="/add-product">
                             <button>ADD</button>
