@@ -11,17 +11,7 @@ const ProductsList = () => {
         const fetchProducts = async () => {
             try {
                 const response = await axios.get('http://scandiweb-test.wuaze.com/product-api/getProducts.php');
-                let data = response.data;
-                if (typeof data === 'string') {
-                    // Handle the concatenated JSON arrays
-                    const jsonStrings = data.split('][').map(item => item.replace(/^\[|\]$/g, ''));
-                    const parsedProducts = jsonStrings.flatMap(jsonString => JSON.parse(`[${jsonString}]`));
-                    setProducts(parsedProducts);
-                } else if (Array.isArray(data)) {
-                    setProducts(data);
-                } else {
-                    throw new Error(`Expected an array but got: ${JSON.stringify(data)}`);
-                }
+                setProducts(response.data);
             } catch (err) {
                 console.error('Error loading products', err);
             }
@@ -44,7 +34,7 @@ const ProductsList = () => {
         try {
             await Promise.all(
                 Array.from(selectedProducts).map(sku =>
-                    axios.post('http://scandiweb-test.wuaze.com/product-api/deleteProducts.php', { sku })
+                    axios.post('http://scandiweb-test.wuaze.com/product-api/deleteProduct.php', { sku })
                 )
             );
             // Refresh product list after deletion
@@ -62,7 +52,7 @@ const ProductsList = () => {
         } else if (product.product_type === 'Book') {
             return `Weight: ${product.weight} Kg`;
         } else if (product.product_type === 'Furniture') {
-            return `Dimensions: ${product.height}x${product.width}x${product.length}`;
+            return `Dimensions: ${product.height}x${product.width}x${product.length} CM`;
         }
         return null;
     };

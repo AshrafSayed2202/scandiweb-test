@@ -17,7 +17,8 @@ const AddProduct = () => {
         setProductType(e.target.value);
         setErrorMessage('');
     };
-    const handleSave = (e) => {
+
+    const handleSave = async (e) => {
         e.preventDefault();
 
         // Validate common fields
@@ -54,16 +55,18 @@ const AddProduct = () => {
         };
 
         // Send the data to the backend API
-        axios.post('http://scandiweb-test.wuaze.com/product-api/addProduct.php', newProduct)
-            .then(response => {
-                if (response.data.success) {
-                    // Redirect to products list after successful save
-                    navigate('/');
-                }
-            })
-            .catch(error => {
-                console.error('Error saving the product:', error);
-            });
+        try {
+            const response = await axios.post('http://scandiweb-test.wuaze.com/product-api/addProduct.php', newProduct);
+            if (response.data.success) {
+                // Redirect to products list after successful save
+                navigate('/');
+            } else {
+                setErrorMessage('Error saving product: ' + response.data.message);
+            }
+        } catch (error) {
+            console.error('Error saving the product:', error);
+            setErrorMessage('Error saving product. Please try again.');
+        }
     };
 
     const handleCancel = () => {
