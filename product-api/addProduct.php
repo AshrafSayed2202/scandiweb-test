@@ -3,7 +3,7 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
 // Include your config for DB connection
-include 'config.php'; 
+include 'config.php';
 
 // Get the raw POST data
 $data = json_decode(file_get_contents('php://input'), true);
@@ -19,11 +19,11 @@ $sku = $data['sku'] ?? null;
 $name = $data['name'] ?? null;
 $price = $data['price'] ?? null;
 $productType = $data['product_type'] ?? null;
-$size = $data['size'] ?? null; 
-$weight = $data['weight'] ?? null; 
-$height = $data['height'] ?? null; 
-$width = $data['width'] ?? null; 
-$length = $data['length'] ?? null; 
+$size = $data['size'] ?? null;
+$weight = $data['weight'] ?? null;
+$height = $data['height'] ?? null;
+$width = $data['width'] ?? null;
+$length = $data['length'] ?? null;
 
 // Validation (Optional but recommended)
 if (!$sku || !$name || !$price || !$productType) {
@@ -32,10 +32,22 @@ if (!$sku || !$name || !$price || !$productType) {
 }
 
 try {
+    // Check if SKU already exists
+    $checkQuery = "SELECT COUNT(*) FROM products WHERE sku = :sku";
+    $checkStmt = $db->prepare($checkQuery);
+    $checkStmt->bindParam(':sku', $sku);
+    $checkStmt->execute();
+    $skuExists = $checkStmt->fetchColumn();
+
+    if ($skuExists > 0) {
+        echo json_encode(['success' => false, 'message' => 'SKU already exists']);
+        exit;
+    }
+
     // Prepare SQL insert query
     $query = "INSERT INTO products (sku, name, price, product_type, size, weight, height, width, length) 
               VALUES (:sku, :name, :price, :productType, :size, :weight, :height, :width, :length)";
-    
+
     $stmt = $db->prepare($query);
     // Bind parameters to the SQL query
     $stmt->bindParam(':sku', $sku);
