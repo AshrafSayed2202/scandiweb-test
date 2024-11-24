@@ -1,5 +1,5 @@
 <?php
-require 'Product.php';
+require_once 'Product.php';
 
 class Furniture extends Product {
     private $height;
@@ -7,18 +7,14 @@ class Furniture extends Product {
     private $length;
 
     public function __construct($sku, $name, $price, $height, $width, $length) {
-        parent::__construct($sku, $name, $price);
+        parent::__construct($sku, $name, $price, 'Furniture');
         $this->height = $height;
         $this->width = $width;
         $this->length = $length;
     }
 
     public function getSpecificAttribute() {
-        return "Dimensions: {$this->height} x {$this->width} x {$this->length} CM";
-    }
-
-    public function getType() {
-        return 'Furniture';
+        return "{$this->height}x{$this->width}x{$this->length}";
     }
 
     public function getSize() {

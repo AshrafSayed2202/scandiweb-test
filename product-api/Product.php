@@ -3,11 +3,13 @@ abstract class Product {
     protected $sku;
     protected $name;
     protected $price;
-    
-    public function __construct($sku, $name, $price) {
+    protected $productType; 
+
+    public function __construct($sku, $name, $price, $productType) {
         $this->sku = $sku;
         $this->name = $name;
         $this->price = $price;
+        $this->productType = $productType; 
     }
 
     public function getSku() {
@@ -22,12 +24,18 @@ abstract class Product {
         return $this->price;
     }
 
-    abstract public function getSpecificAttribute();
-    abstract public function getType();
-    abstract public function getSize();
-    abstract public function getWeight();
-    abstract public function getHeight();
-    abstract public function getWidth();
-    abstract public function getLength();
+    public function getProductType() {
+        return $this->productType;
+    }
+
+    
+    abstract public function getSpecificAttribute(); 
+
+    
+    abstract public function getSize(); 
+    abstract public function getWeight(); 
+    abstract public function getHeight(); 
+    abstract public function getWidth(); 
+    abstract public function getLength(); 
 }
 ?>

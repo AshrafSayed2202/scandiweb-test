@@ -22,7 +22,7 @@ const AddProduct = () => {
         e.preventDefault();
 
         // Validate common fields
-        if (!sku || !name || !price) {
+        if (!sku || !name || !price || price <= 0) {
             setErrorMessage('Please, submit required data.');
             return;
         }
@@ -56,7 +56,7 @@ const AddProduct = () => {
 
         // Send the data to the backend API
         try {
-            const response = await axios.post('http://scandiweb-test.wuaze.com/product-api/addProduct.php', newProduct);
+            const response = await axios.post('http://scandiweb-test.wuaze.com/product-api/addProduct.php', newProduct, { headers: { 'Content-Type': 'application/json' } });
             if (response.data.success) {
                 // Redirect to products list after successful save
                 navigate('/');

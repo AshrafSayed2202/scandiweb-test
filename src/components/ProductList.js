@@ -5,15 +5,21 @@ import { Link } from 'react-router-dom';
 const ProductsList = () => {
     const [products, setProducts] = useState([]);
     const [selectedProducts, setSelectedProducts] = useState(new Set());
+    const [errorMessage, setErrorMessage] = useState('');
 
     useEffect(() => {
         // Fetch products from the API
         const fetchProducts = async () => {
             try {
                 const response = await axios.get('http://scandiweb-test.wuaze.com/product-api/getProducts.php');
-                setProducts(response.data);
+                if (response.data.success) {
+                    setProducts(response.data.data); // Adjusted to handle the response structure
+                } else {
+                    setErrorMessage('No products available.');
+                }
             } catch (err) {
                 console.error('Error loading products', err);
+                setErrorMessage('Error loading products. Please try again later.');
             }
         };
 
@@ -39,10 +45,15 @@ const ProductsList = () => {
             );
             // Refresh product list after deletion
             const response = await axios.get('http://scandiweb-test.wuaze.com/product-api/getProducts.php');
-            setProducts(response.data);
-            setSelectedProducts(new Set()); // Clear selection
+            if (response.data.success) {
+                setProducts(response.data.data); // Update with the latest product list
+                setSelectedProducts(new Set()); // Clear selection
+            } else {
+                setErrorMessage('Failed to refresh product list.');
+            }
         } catch (error) {
             console.error('Error deleting products', error);
+            setErrorMessage('Error deleting products. Please try again later.');
         }
     };
 
@@ -52,7 +63,7 @@ const ProductsList = () => {
         } else if (product.product_type === 'Book') {
             return `Weight: ${product.weight} Kg`;
         } else if (product.product_type === 'Furniture') {
-            return `Dimensions: ${product.height}x${product.width}x${product.length} CM`;
+            return `Dimensions: ${product.height} x ${product.width} x ${product.length} CM`;
         }
         return null;
     };
@@ -67,11 +78,12 @@ const ProductsList = () => {
                             <button>ADD</button>
                         </Link>
                         <button onClick={handleMassDelete} disabled={selectedProducts.size === 0}>
-                            MASS DELETE
+                            {selectedProducts.size === 0 ? 'MASS DELETE (Disabled)' : 'MASS DELETE'}
                         </button>
                     </div>
                 </div>
             </div>
+            {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
             {products.length > 0 ? (
                 <div className="product-cards">
                     {products.map((product) => (

@@ -1,38 +1,60 @@
 <?php
-header('Access-Control-Allow-Origin: *');
-header('Content-Type: application/json');
-require 'Database.php';
-require 'DVD.php';
-require 'Book.php';
-require 'Furniture.php';
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
-$data = json_decode(file_get_contents("php://input"), true);
+// Include your config for DB connection
+include 'config.php'; 
 
-if (isset($data['sku']) && isset($data['name']) && isset($data['price']) && isset($data['product_type'])) {
-    switch ($data['product_type']) {
-        case 'DVD':
-            $product = new DVD($data['sku'], $data['name'], $data['price'], $data['size']);
-            break;
-        case 'Book':
-            $product = new Book($data['sku'], $data['name'], $data['price'], $data['weight']);
-            break;
-        case 'Furniture':
-            $product = new Furniture($data['sku'], $data['name'], $data['price'], $data['height'], $data['width'], $data['length']);
-            break;
-        default:
-            echo json_encode(['success' => false, 'message' => 'Invalid product type.']);
-            exit;
-    }
+// Get the raw POST data
+$data = json_decode(file_get_contents('php://input'), true);
 
-    $db = new Database();
-    $result = $db->addProduct($product);
+// Check if data is decoded properly
+if ($data === null) {
+    echo json_encode(['success' => false, 'message' => 'Invalid JSON data']);
+    exit;
+}
 
-    if ($result) {
-        echo json_encode(['success' => true, 'message' => 'Product added successfully.']);
-    } else {
-        echo json_encode(['success' => false, 'message' => 'Error adding product.']);
-    }
-} else {
-    echo json_encode(['success' => false, 'message' => 'Missing required fields.']);
+// Extract product data from the decoded JSON
+$sku = $data['sku'] ?? null;
+$name = $data['name'] ?? null;
+$price = $data['price'] ?? null;
+$productType = $data['product_type'] ?? null;
+$size = $data['size'] ?? null; 
+$weight = $data['weight'] ?? null; 
+$height = $data['height'] ?? null; 
+$width = $data['width'] ?? null; 
+$length = $data['length'] ?? null; 
+
+// Validation (Optional but recommended)
+if (!$sku || !$name || !$price || !$productType) {
+    echo json_encode(['success' => false, 'message' => 'Please provide all required fields']);
+    exit;
+}
+
+try {
+    // Prepare SQL insert query
+    $query = "INSERT INTO products (sku, name, price, product_type, size, weight, height, width, length) 
+              VALUES (:sku, :name, :price, :productType, :size, :weight, :height, :width, :length)";
+    
+    $stmt = $db->prepare($query);
+    // Bind parameters to the SQL query
+    $stmt->bindParam(':sku', $sku);
+    $stmt->bindParam(':name', $name);
+    $stmt->bindParam(':price', $price);
+    $stmt->bindParam(':productType', $productType);
+    $stmt->bindParam(':size', $size);
+    $stmt->bindParam(':weight', $weight);
+    $stmt->bindParam(':height', $height);
+    $stmt->bindParam(':width', $width);
+    $stmt->bindParam(':length', $length);
+
+    // Execute the query
+    $stmt->execute();
+
+    // Send success response
+    echo json_encode(['success' => true, 'message' => 'Product added successfully!']);
+} catch (PDOException $e) {
+    // Send error response
+    echo json_encode(['success' => false, 'message' => 'Error: ' . $e->getMessage()]);
 }
 ?>

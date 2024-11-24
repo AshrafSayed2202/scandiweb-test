@@ -1,20 +1,16 @@
 <?php
-require 'Product.php';
+require_once 'Product.php';
 
 class DVD extends Product {
     private $size;
 
     public function __construct($sku, $name, $price, $size) {
-        parent::__construct($sku, $name, $price);
+        parent::__construct($sku, $name, $price, 'DVD');
         $this->size = $size;
     }
 
     public function getSpecificAttribute() {
-        return "Size: {$this->size} MB";
-    }
-
-    public function getType() {
-        return 'DVD';
+        return $this->size;
     }
 
     public function getSize() {

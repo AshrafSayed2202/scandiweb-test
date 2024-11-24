@@ -1,20 +1,16 @@
 <?php
-require 'Product.php';
+require_once 'Product.php';
 
 class Book extends Product {
     private $weight;
 
     public function __construct($sku, $name, $price, $weight) {
-        parent::__construct($sku, $name, $price);
+        parent::__construct($sku, $name, $price, 'Book');
         $this->weight = $weight;
     }
 
     public function getSpecificAttribute() {
-        return "Weight: {$this->weight} Kg";
-    }
-
-    public function getType() {
-        return 'Book';
+        return $this->weight;
     }
 
     public function getSize() {
